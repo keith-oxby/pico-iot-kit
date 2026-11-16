@@ -1,0 +1,72 @@
+name: Release
+
+# Builds the frozen Pico W image in the pinned container (build/build.sh).
+# - Run it by hand from the Actions tab ("Run workflow") to test the build;
+#   nothing is published.
+# - Pushing a tag v* also publishes a GitHub Release with the .uf2 attached
+#   (a pre-release if the tag has a suffix, such as v0.1.0-rc1).
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    env:
+      PICOKIT_ENGINE: docker
+    steps:
+      - uses: actions/checkout@v7
+      - name: Work out the version
+        id: version
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          SHA: ${{ github.sha }}
+        run: |
+          if [ "$REF_TYPE" = tag ]; then
+            echo "version=${REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=dev-${SHA::7}" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Build the firmware image
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: build/build.sh --version "$VERSION"
+      - name: Checksums
+        working-directory: build/out
+        run: sha256sum *.uf2 | tee SHA256SUMS
+      - uses: actions/upload-artifact@v7
+        with:
+          name: pico-iot-kit-picow
+          path: |
+            build/out/*.uf2
+            build/out/SHA256SUMS
+            build/out/THIRD_PARTY_LICENSES.txt
+          if-no-files-found: error
+
+  publish:
+    if: github.ref_type == 'tag'
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: pico-iot-kit-picow
+          path: dist
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          flags=""
+          case "$TAG" in *-*) flags="--prerelease" ;; esac
+          gh release create "$TAG" $flags --repo "$GITHUB_REPOSITORY" --verify-tag \
+            --title "$TAG" --generate-notes dist/*.uf2 dist/SHA256SUMS dist/THIRD_PARTY_LICENSES.txt

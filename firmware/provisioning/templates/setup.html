@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pico-iot-kit setup</title>
+<style>
+body{font-family:sans-serif;max-width:32em;margin:0 auto;padding:1em}
+label{display:block;margin:.6em 0}
+input,select{width:100%;box-sizing:border-box;padding:.5em;font-size:1em}
+input[type=checkbox],input[type=radio]{width:auto}
+fieldset{margin:1em 0}
+button{width:100%;padding:.8em;font-size:1.1em}
+.error{background:#fdd;border:1px solid #c00;padding:.6em}
+small{color:#555}
+</style>
+</head>
+<body>
+<h1>pico-iot-kit setup</h1>
+<!--ERROR-->
+<form method="post" action="/" autocomplete="off">
+
+<h2>Wi-Fi</h2>
+<label>Network name (SSID) <input name="wifi_ssid" maxlength="32" required></label>
+<label>Password <input type="password" name="wifi_password" maxlength="63">
+<small>8&ndash;63 characters, or empty for an open network.</small></label>
+
+<h2>Where should readings go?</h2>
+<label>Backend
+<select name="backend_type">
+<option value="local_mqtt">Local MQTT broker</option>
+<option value="home_assistant">Home Assistant (MQTT)</option>
+</select></label>
+
+<fieldset>
+<legend>MQTT / Home Assistant</legend>
+<label>Broker host name or IP address <input name="mqtt_host" maxlength="253"></label>
+<label>Port <input name="mqtt_port" inputmode="numeric" maxlength="5">
+<small>Leave empty for the default (8883 with TLS, 1883 without).</small></label>
+<label>Username (optional) <input name="mqtt_username" maxlength="128"></label>
+<label>Password (optional) <input type="password" name="mqtt_password" maxlength="128"></label>
+</fieldset>
+
+<fieldset>
+<legend>How to secure the connection</legend>
+<label><input type="radio" name="mqtt_security" value="verify"> <strong>Verified TLS (recommended).</strong>
+<small>Encrypts the connection and checks that the broker is the one you expect. Needs a CA certificate installed from a PC first (see the README).</small></label>
+<!--CA-->
+<label><input type="radio" name="mqtt_security" value="unverified"> <strong>Encrypted, not verified (less secure).</strong>
+<small>Encrypts the connection but does not check who the broker is, so someone on your network could impersonate it. Use only if you cannot install a CA certificate.</small></label>
+<label><input type="radio" name="mqtt_security" value="plaintext"> <strong>Plaintext (not encrypted).</strong>
+<small>Nothing is encrypted: your readings and broker password can be read by anyone on your network. Only for a network you fully trust.</small></label>
+</fieldset>
+
+<h2>Sensors</h2>
+<fieldset>
+<legend>DHT11 (temperature + humidity)</legend>
+<label>Name <input name="dht11_name" value="dht11" maxlength="32" pattern="[A-Za-z0-9_\-]+"></label>
+<label>Data pin <select name="dht11_pin"><option value="">Not connected</option><option value="0">GP0</option><option value="1">GP1</option><option value="2">GP2</option><option value="3">GP3</option><option value="4">GP4</option><option value="5">GP5</option><option value="6">GP6</option><option value="7">GP7</option><option value="8">GP8</option><option value="9">GP9</option><option value="10">GP10</option><option value="11">GP11</option><option value="12">GP12</option><option value="13">GP13</option><option value="14">GP14</option><option value="15">GP15</option><option value="16">GP16</option><option value="17">GP17</option><option value="18">GP18</option><option value="19">GP19</option><option value="20">GP20</option><option value="21">GP21</option><option value="22">GP22</option><option value="26">GP26</option><option value="27">GP27</option><option value="28">GP28</option></select></label>
+</fieldset>
+
+<fieldset>
+<legend>AHT10 (temperature + humidity, I2C)</legend>
+<label>Name <input name="aht10_name" value="aht10" maxlength="32" pattern="[A-Za-z0-9_\-]+"></label>
+<label>SDA pin <select name="aht10_sda"><option value="">Not connected</option><option value="0">GP0</option><option value="1">GP1</option><option value="2">GP2</option><option value="3">GP3</option><option value="4">GP4</option><option value="5">GP5</option><option value="6">GP6</option><option value="7">GP7</option><option value="8">GP8</option><option value="9">GP9</option><option value="10">GP10</option><option value="11">GP11</option><option value="12">GP12</option><option value="13">GP13</option><option value="14">GP14</option><option value="15">GP15</option><option value="16">GP16</option><option value="17">GP17</option><option value="18">GP18</option><option value="19">GP19</option><option value="20">GP20</option><option value="21">GP21</option><option value="22">GP22</option><option value="26">GP26</option><option value="27">GP27</option><option value="28">GP28</option></select></label>
+<label>SCL pin <select name="aht10_scl"><option value="">Not connected</option><option value="0">GP0</option><option value="1">GP1</option><option value="2">GP2</option><option value="3">GP3</option><option value="4">GP4</option><option value="5">GP5</option><option value="6">GP6</option><option value="7">GP7</option><option value="8">GP8</option><option value="9">GP9</option><option value="10">GP10</option><option value="11">GP11</option><option value="12">GP12</option><option value="13">GP13</option><option value="14">GP14</option><option value="15">GP15</option><option value="16">GP16</option><option value="17">GP17</option><option value="18">GP18</option><option value="19">GP19</option><option value="20">GP20</option><option value="21">GP21</option><option value="22">GP22</option><option value="26">GP26</option><option value="27">GP27</option><option value="28">GP28</option></select></label>
+<small>SDA and SCL must be a valid I2C pair, e.g. GP0 + GP1 or GP2 + GP3.</small>
+</fieldset>
+
+<fieldset>
+<legend>Switch / PIR / reed (digital input)</legend>
+<label>Name <input name="binary_name" value="binary_input" maxlength="32" pattern="[A-Za-z0-9_\-]+"></label>
+<label>Input pin <select name="binary_pin"><option value="">Not connected</option><option value="0">GP0</option><option value="1">GP1</option><option value="2">GP2</option><option value="3">GP3</option><option value="4">GP4</option><option value="5">GP5</option><option value="6">GP6</option><option value="7">GP7</option><option value="8">GP8</option><option value="9">GP9</option><option value="10">GP10</option><option value="11">GP11</option><option value="12">GP12</option><option value="13">GP13</option><option value="14">GP14</option><option value="15">GP15</option><option value="16">GP16</option><option value="17">GP17</option><option value="18">GP18</option><option value="19">GP19</option><option value="20">GP20</option><option value="21">GP21</option><option value="22">GP22</option><option value="26">GP26</option><option value="27">GP27</option><option value="28">GP28</option></select></label>
+<label><input type="checkbox" name="binary_invert"> Invert (closed contact to GND counts as ON)</label>
+</fieldset>
+
+<h2>Reading interval</h2>
+<label>Seconds between readings <input name="poll_interval_s" value="30" inputmode="numeric" maxlength="5"></label>
+
+<button type="submit">Save and restart</button>
+</form>
+</body>
+</html>

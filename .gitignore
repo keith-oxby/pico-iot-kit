@@ -1,0 +1,27 @@
+# Build artifacts
+build/out/
+*.uf2
+*.elf
+*.map
+
+# MicroPython / Pico SDK clones pulled in by the build container
+build/micropython/
+build/pico-sdk/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Local device config dropped during dev testing
+env.json
+config.json
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+tools/test-broker/certs/
+tools/test-broker/ha-config/

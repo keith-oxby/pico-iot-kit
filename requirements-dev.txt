@@ -1,0 +1,4 @@
+-r tools/requirements.txt
+pytest>=8
+ruff>=0.6
+mpremote>=1.23
