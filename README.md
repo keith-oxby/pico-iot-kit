@@ -5,10 +5,11 @@ An open-source MicroPython IoT platform for the Raspberry Pi Pico W (Pico 2 W is
 
 ## Status
 
-Pre-release. The firmware runs end to end on a Pico W: set up from a phone,
+Version 0.1.0. The firmware runs end to end on a Pico W: set up from a phone,
 verified TLS to a private MQTT broker, Home Assistant discovery, DHT11, AHT10
 and binary-input sensors, and a watchdog that recovers a stuck board. A frozen
-`.uf2` is built in CI; the first tagged release is still to come. See
+`.uf2` for the Pico W is built in CI and attached to each
+[release](../../releases). See
 [the full project specification](docs/architecture.md) for the architecture,
 security model and checklist.
 
